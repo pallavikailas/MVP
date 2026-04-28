@@ -1,0 +1,77 @@
+flowchart TD
+    U([👤 User]) --> FE[React Frontend\nVite + Tailwind + D3]
+
+    FE -->|Upload .pkl + .csv| API[FastAPI Backend\nCloud Run]
+
+    subgraph STAGE1 ["⬡ Stage 1 — Bias Cartography"]
+        API --> SC[SHAP Values\nTreeExplainer / KernelExplainer]
+        SC --> IS[Intersectional Slices\ngender × race × age_group]
+        IS --> UM[UMAP Projection\n2D topology of bias]
+        UM --> HS[Hotspot Detection\nDBSCAN clustering]
+        HS --> FM[Fairness Metrics\nSPD · DI · Equalized Odds]
+    end
+
+    subgraph STAGE2 ["◍ Stage 2 — Counterfactual Constitution"]
+        FM --> CF[Counterfactual Pairs\nflip each protected attr]
+        CF --> PT[Pattern Extraction\nflip rates · prob deltas]
+        PT --> GM[Gemini 1.5 Pro\nVertex AI]
+        GM --> CD[Constitution Document\nMarkdown + JSON sections]
+    end
+
+    subgraph STAGE3 ["◈ Stage 3 — Proxy Variable Hunter"]
+        CD --> CG[Correlation Graph\nNetworkX DiGraph]
+        CG --> PC[Proxy Chain Detection\nall_simple_paths cutoff=4]
+        PC --> VE[Vertex AI Embeddings\ntext-embedding-004]
+        VE --> RS[Risk Scoring\nchain strength × semantic sim]
+        RS --> REC[Recommendations\ncritical · high · medium]
+    end
+
+    subgraph REVIEW ["👁 User Review"]
+        REC --> UI[Results Dashboard\nBias Map · Constitution · Proxy Graph]
+        UI --> CB{User confirms\nbiases?}
+    end
+
+    subgraph STAGE4 ["⊘ Stage 4 — Red-Team Agent"]
+        CB -->|Yes| LG[LangGraph Orchestrator]
+
+        LG --> AA[Attack Agent\nadversarial probes]
+        AA --> EA[Evaluator Agent\nmeasure disparity]
+        EA --> DA[Decision Agent\nGemini selects strategy]
+        DA --> PA[Patcher Agent\nReweighing · Threshold · Ablation]
+        PA --> VA[Validator Agent\nre-evaluate post-patch]
+        VA -->|bias remains| AA
+        VA -->|bias fixed| RA[Report Agent\nfinal summary]
+    end
+
+    subgraph GCP ["☁ Google Cloud Platform"]
+        BQ[(BigQuery\naudit trail)]
+        GCS[(Cloud Storage\nmodel uploads)]
+        VAI[Vertex AI\nGemini 1.5 Pro\ntext-embedding-004]
+        CR[Cloud Run\ncontainerised services]
+        AR[Artifact Registry\nDocker images]
+    end
+
+    subgraph CICD ["🔁 CI/CD — GitHub Actions"]
+        GH[Push to main] --> CI[CI: lint · test · security scan]
+        CI --> BUILD[Build Docker images]
+        BUILD --> PUSH[Push to Artifact Registry]
+        PUSH --> DEPLOY[Deploy to Cloud Run]
+    end
+
+    API --> BQ
+    API --> GCS
+    GM --> VAI
+    VE --> VAI
+    LG --> VAI
+    API --> CR
+
+    RA --> SSE[Server-Sent Events\nlive agent feed]
+    SSE --> FE
+
+    style STAGE1 fill:#1a1a2e,stroke:#7c3aed,color:#a78bfa
+    style STAGE2 fill:#1a1a2e,stroke:#7c3aed,color:#a78bfa
+    style STAGE3 fill:#1a1a2e,stroke:#7c3aed,color:#a78bfa
+    style STAGE4 fill:#1a0e0e,stroke:#ef4444,color:#fca5a5
+    style REVIEW fill:#0e1a0e,stroke:#10b981,color:#6ee7b7
+    style GCP fill:#0e0e1a,stroke:#3b82f6,color:#93c5fd
+    style CICD fill:#1a160e,stroke:#f59e0b,color:#fcd34d
